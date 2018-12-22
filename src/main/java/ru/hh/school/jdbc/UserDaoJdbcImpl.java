@@ -1,4 +1,4 @@
-package ru.hh.school.jdbc.dao;
+package ru.hh.school.jdbc;
 
 import javax.sql.DataSource;
 import java.sql.Connection;
@@ -42,8 +42,6 @@ public class UserDaoJdbcImpl implements UserDao {
       throw new RuntimeException("Can't get all users", e);
     }
   }
-
-  // region already implemented methods
 
   @Override
   public void saveNew(User user) {
@@ -158,7 +156,5 @@ public class UserDaoJdbcImpl implements UserDao {
       throw new RuntimeException("failed to remove user by id " + userId, e);
     }
   }
-
-  //endregion
 
 }

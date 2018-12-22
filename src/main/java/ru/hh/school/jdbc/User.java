@@ -1,12 +1,15 @@
-package ru.hh.school.jdbc.dao;
+package ru.hh.school.jdbc;
 
 import java.util.Objects;
 
+// ToDo: оформить entity
 public class User {
 
   private Integer id;
   private String firstName;
   private String lastName;
+
+  // ToDo: no-arg constructor
 
   private User(Integer id, String firstName, String lastName) {
     this.id = id;
@@ -22,7 +25,6 @@ public class User {
     return new User(null, firstName, lastName);
   }
 
-  //region getters and setters
   void setId(int id) {
     this.id = id;
   }
@@ -42,8 +44,6 @@ public class User {
   public void setFirstName(String name) {
     this.firstName = name;
   }
-  //endregion
-
 
   @Override
   public boolean equals(Object o) {
@@ -68,4 +68,5 @@ public class User {
       ", lastName='" + lastName + '\'' +
       '}';
   }
+
 }

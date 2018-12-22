@@ -1,4 +1,4 @@
-package ru.hh.school.jdbc.dao;
+package ru.hh.school.jdbc;
 
 import java.util.Optional;
 import java.util.Set;

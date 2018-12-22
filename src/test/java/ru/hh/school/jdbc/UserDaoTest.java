@@ -1,4 +1,4 @@
-package ru.hh.school.jdbc.dao;
+package ru.hh.school.jdbc;
 
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
