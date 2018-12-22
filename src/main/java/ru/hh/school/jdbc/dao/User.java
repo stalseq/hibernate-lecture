@@ -1,5 +1,7 @@
 package ru.hh.school.jdbc.dao;
 
+import java.util.Objects;
+
 public class User {
 
   private Integer id;
@@ -42,8 +44,28 @@ public class User {
   }
   //endregion
 
-  //region secret part
-  // ToDo: реализовать equals() и hashCode()
-  // как мы это сделаем?
-  //endregion
+
+  @Override
+  public boolean equals(Object o) {
+    if (this == o) return true;
+    if (o == null || getClass() != o.getClass()) return false;
+    User user = (User) o;
+    return Objects.equals(id, user.id) &&
+      Objects.equals(firstName, user.firstName) &&
+      Objects.equals(lastName, user.lastName);
+  }
+
+  @Override
+  public int hashCode() {
+    return 17;
+  }
+
+  @Override
+  public String toString() {
+    return "User{" +
+      "id=" + id +
+      ", firstName='" + firstName + '\'' +
+      ", lastName='" + lastName + '\'' +
+      '}';
+  }
 }

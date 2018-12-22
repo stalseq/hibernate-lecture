@@ -6,6 +6,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.HashSet;
 import java.util.Optional;
 import java.util.Set;
 
@@ -19,21 +20,42 @@ public class UserDaoJdbcImpl implements UserDao {
 
   @Override
   public Set<User> getAll() {
-    // ToDo: implement
-    return null;
+    try (Connection connection = dataSource.getConnection()) {
+
+      try (Statement statement = connection.createStatement();
+           ResultSet rs = statement.executeQuery("SELECT * FROM hhuser")) {
+
+        Set<User> users = new HashSet<>();
+        while (rs.next()) {
+          users.add(
+            User.existing(
+              rs.getInt("user_id"),
+              rs.getString("first_name"),
+              rs.getString("last_name")
+            )
+          );
+        }
+        return users;
+      }
+
+    } catch (SQLException e) {
+      throw new RuntimeException("Can't get all users", e);
+    }
   }
 
   // region already implemented methods
 
   @Override
   public void saveNew(User user) {
-    // ToDo: check if user already exists
 
+    if (user.getId() != null) {
+      throw new IllegalArgumentException("User " + user + " already persisted");
+    }
 
     try (Connection connection = dataSource.getConnection()) {
 
       try (PreparedStatement preparedStatement = connection.prepareStatement(
-        "insert into hhuser (first_name, last_name) values (?, ?)",
+        "INSERT INTO hhuser (first_name, last_name) VALUES (?, ?)",
         Statement.RETURN_GENERATED_KEYS)) {
 
         preparedStatement.setString(1, user.getFirstName());
@@ -60,7 +82,7 @@ public class UserDaoJdbcImpl implements UserDao {
     try (Connection connection = dataSource.getConnection()) {
 
       try (Statement statement = connection.createStatement()) {
-        statement.executeUpdate("delete from hhuser");
+        statement.executeUpdate("DELETE FROM hhuser");
       }
 
     } catch (SQLException e) {
