@@ -39,6 +39,7 @@ public class UserServiceTest {
 
     Metadata metadata = new MetadataSources(serviceRegistry)
       // ToDo add entity class
+      .addAnnotatedClass(User.class)
       .buildMetadata();
 
     return metadata.buildSessionFactory();

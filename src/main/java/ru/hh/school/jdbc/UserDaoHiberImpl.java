@@ -16,8 +16,9 @@ public class UserDaoHiberImpl implements UserDao {
 
   @Override
   public Set<User> getAll() {
-    // ToDo: implement
-    return null;
+    return Set.copyOf(
+      session().createQuery("from User", User.class).list()
+    );
   }
 
   //region already implemented methods

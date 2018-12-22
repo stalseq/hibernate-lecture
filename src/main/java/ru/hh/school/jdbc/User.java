@@ -1,15 +1,31 @@
 package ru.hh.school.jdbc;
 
+import javax.persistence.Column;
+import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
+import javax.persistence.Id;
+import javax.persistence.Table;
 import java.util.Objects;
 
-// ToDo: оформить entity
+@Entity
+@Table(name = "hhuser")
 public class User {
 
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  @Column(name = "user_id")
   private Integer id;
+  @Column(name = "first_name")
   private String firstName;
+  @Column(name = "last_name")
   private String lastName;
 
-  // ToDo: no-arg constructor
+  /**
+   * for hibernate only
+   */
+  @Deprecated
+  User() {}
 
   private User(Integer id, String firstName, String lastName) {
     this.id = id;

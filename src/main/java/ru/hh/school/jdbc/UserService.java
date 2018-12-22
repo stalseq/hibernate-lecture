@@ -17,8 +17,7 @@ public class UserService {
   }
 
   public Set<User> getAll() {
-    // ToDo implement
-    return null;
+    return inTransaction(userDao::getAll);
   }
 
 
