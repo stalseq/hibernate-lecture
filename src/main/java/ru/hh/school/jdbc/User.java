@@ -5,7 +5,10 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 @Entity
@@ -20,26 +23,10 @@ public class User {
   private String firstName;
   @Column(name = "last_name")
   private String lastName;
+  @OneToMany(mappedBy = "user")
+  private List<Resume> resumes = new ArrayList<>();
 
-  /**
-   * for hibernate only
-   */
-  @Deprecated
   User() {}
-
-  private User(Integer id, String firstName, String lastName) {
-    this.id = id;
-    this.firstName = firstName;
-    this.lastName = lastName;
-  }
-
-  static User existing(int id, String firstName, String lastName) {
-    return new User(id, firstName, lastName);
-  }
-
-  public static User newUser(String firstName, String lastName) {
-    return new User(null, firstName, lastName);
-  }
 
   void setId(int id) {
     this.id = id;
@@ -59,6 +46,19 @@ public class User {
 
   public void setFirstName(String name) {
     this.firstName = name;
+  }
+
+  public void setLastName(String lastName) {
+    this.lastName = lastName;
+  }
+
+  public void addResume(Resume resume) {
+    resumes.add(resume);
+    resume.setUser(this);
+  }
+
+  public List<Resume> getResumes() {
+    return resumes;
   }
 
   @Override
