@@ -2,6 +2,7 @@
 1. master - готовый пример
 2. jdbc - заготовка для лекции по jdbc
 3. hiber - заготовка для лекции по hibernate
+4. relations - пример с двусторонней связью @OneToMany
 
 Изучение кода можно начать с:
 1. [сущность User](https://github.com/vorobey92/hibernate-lecture/blob/master/src/main/java/ru/hh/school/jdbc/User.java)
