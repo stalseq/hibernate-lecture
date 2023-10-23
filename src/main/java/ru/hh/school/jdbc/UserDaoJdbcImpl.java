@@ -1,160 +1,71 @@
-package ru.hh.school.jdbc;
+package jm.task.core.jdbc.dao;
 
-import javax.sql.DataSource;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Statement;
-import java.util.HashSet;
-import java.util.Optional;
-import java.util.Set;
+import jm.task.core.jdbc.model.User;
+import jm.task.core.jdbc.util.Util;
 
-public class UserDaoJdbcImpl implements UserDao {
+import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
-  private final DataSource dataSource;
+public class UserDaoJDBCImpl implements UserDao {
 
-  public UserDaoJdbcImpl(DataSource dataSource) {
-    this.dataSource = dataSource;
-  }
-
-  @Override
-  public Set<User> getAll() {
-    try (Connection connection = dataSource.getConnection()) {
-
-      try (Statement statement = connection.createStatement();
-           ResultSet rs = statement.executeQuery("SELECT * FROM hhuser")) {
-
-        Set<User> users = new HashSet<>();
-        while (rs.next()) {
-          users.add(
-            User.existing(
-              rs.getInt("user_id"),
-              rs.getString("first_name"),
-              rs.getString("last_name")
-            )
-          );
+    public UserDaoJDBCImpl() {
+    }
+    public void createUsersTable() {
+        try (Connection connection = Util.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement("CREATE TABLE IF NOT EXISTS users" +
+                "(id INT PRIMARY KEY NOT NULL AUTO_INCREMENT, name VARCHAR(45), lastname VARCHAR(45), age INT)")) {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Во время создания таблицы возникло исключение: " + e);
         }
-        return users;
-      }
-
-    } catch (SQLException e) {
-      throw new RuntimeException("Can't get all users", e);
     }
-  }
-
-  @Override
-  public void saveNew(User user) {
-
-    if (user.getId() != null) {
-      throw new IllegalArgumentException("User " + user + " already persisted");
-    }
-
-    try (Connection connection = dataSource.getConnection()) {
-
-      try (PreparedStatement preparedStatement = connection.prepareStatement(
-        "INSERT INTO hhuser (first_name, last_name) VALUES (?, ?)",
-        Statement.RETURN_GENERATED_KEYS)) {
-
-        preparedStatement.setString(1, user.getFirstName());
-        preparedStatement.setString(2, user.getLastName());
-        preparedStatement.executeUpdate();
-
-        try (ResultSet generatedKeys = preparedStatement.getGeneratedKeys()) {
-          if (generatedKeys.next()) {
-            user.setId(generatedKeys.getInt("user_id"));
-          }
+    public void dropUsersTable() {
+        try (Connection connection = Util.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement("DROP TABLE IF EXISTS users")) {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Во время создания таблицы возникло исключение: " + e);
         }
-
-      }
-
-    } catch (SQLException e) {
-      throw new RuntimeException(e);
     }
-
-
-  }
-
-  @Override
-  public void deleteAll() {
-    try (Connection connection = dataSource.getConnection()) {
-
-      try (Statement statement = connection.createStatement()) {
-        statement.executeUpdate("DELETE FROM hhuser");
-      }
-
-    } catch (SQLException e) {
-      throw new RuntimeException("Can't delete all users", e);
-    }
-  }
-
-  @Override
-  public Optional<User> getBy(int userId) {
-    try (Connection connection = dataSource.getConnection()) {
-
-      try (PreparedStatement statement = connection.prepareStatement(
-        "SELECT user_id, first_name, last_name FROM hhuser WHERE user_id = ?")) {
-
-        statement.setInt(1, userId);
-
-        try (ResultSet resultSet = statement.executeQuery()) {
-
-          boolean userExists = resultSet.next();
-          if (!userExists) {
-            return Optional.empty();
-          }
-          return Optional.of(
-            User.existing(
-              userId,
-              resultSet.getString("first_name"),
-              resultSet.getString("last_name")
-            )
-          );
+    public void saveUser(String name, String lastName, byte age) {
+        try (Connection connection = Util.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement("INSERT INTO users(name, lastname, age) VALUES(?, ?, ?)")) {
+            preparedStatement.setString(1, name);
+            preparedStatement.setString(2, lastName);
+            preparedStatement.setLong(3, age);
+            preparedStatement.executeUpdate();
+            System.out.println("User с именем – " + name + " добавлен в базу данных");
+        } catch (SQLException e) {
+            System.err.println("Во время операции возникло исключение: " + e);
         }
-      }
-    } catch (SQLException e) {
-      throw new RuntimeException("failed to get user by id " + userId, e);
     }
-  }
-
-  @Override
-  public void update(User user) {
-    if (user.getId() == null) {
-      throw new IllegalArgumentException("can not update " + user + " without id");
+    public void removeUserById(long id) {
+        try (Connection connection = Util.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM USERS WHERE id=?")) {
+            preparedStatement.setLong(1, id);
+        } catch (SQLException e) {
+            System.out.println("Во время удаление по id возникло исключение: " + e);
+        }
     }
-
-    try(Connection connection = dataSource.getConnection()) {
-
-      try (PreparedStatement statement = connection.prepareStatement(
-        "UPDATE hhuser SET first_name = ?, last_name = ? WHERE user_id = ?")) {
-
-        statement.setString(1, user.getFirstName());
-        statement.setString(2, user.getLastName());
-        statement.setInt(3, user.getId());
-
-        statement.executeUpdate();
-      }
-
-    } catch (SQLException e) {
-      throw new RuntimeException("failed to update " + user, e);
+    public List<User> getAllUsers() {
+        List<User> listUser = new ArrayList<>();
+        try (Connection connection = Util.getConnection(); Statement statement= connection.createStatement()) {
+            ResultSet resultSet = statement.executeQuery("SELECT id, name, lastname, age FROM users");
+            while (resultSet.next()) {
+                User user = new User();
+                user.setId(resultSet.getLong("ID"));
+                user.setName(resultSet.getString("NAME"));
+                user.setLastName(resultSet.getString("LASTNAME"));
+                user.setAge(resultSet.getByte("AGE"));
+                listUser.add(user);
+            }
+        } catch (SQLException e) {
+            System.out.println("Во время выводы таблицы возникло исключение: " + e);
+        }
+        return listUser;
     }
-  }
-
-  @Override
-  public void deleteBy(int userId) {
-    try (Connection connection = dataSource.getConnection()) {
-
-      try(PreparedStatement statement = connection.prepareStatement(
-        "DELETE FROM hhuser WHERE user_id = ?")) {
-
-        statement.setInt(1, userId);
-
-        statement.executeUpdate();
-      }
-
-    } catch (SQLException e) {
-      throw new RuntimeException("failed to remove user by id " + userId, e);
+    public void cleanUsersTable() {
+        try (Connection connection = Util.getConnection(); PreparedStatement preparedStatement = connection.prepareStatement("DELETE FROM users")) {
+            preparedStatement.executeUpdate();
+        } catch (SQLException e) {
+            System.out.println("Во время создания таблицы возникло исключение: " + e);
+        }
     }
-  }
-
 }
